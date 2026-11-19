@@ -34,6 +34,16 @@ _ADAPTIVE_THINKING_MODELS = (
 _FALLBACK_MODELS = ("claude-fable-5", "claude-opus-5")
 _FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
+# Models that take output_config.effort. Haiku 4.5 predates this parameter
+# and returns a 400 if it's present at all — not just an unsupported value.
+_EFFORT_MODELS = (
+    "claude-fable-5",
+    "claude-opus-5",
+    "claude-opus-4-8",
+    "claude-opus-4-7",
+    "claude-sonnet-5",
+)
+
 
 @lru_cache(maxsize=1)
 def client() -> anthropic.Anthropic:
@@ -88,8 +98,10 @@ def _build_params(
         "model": model,
         "max_tokens": max_tokens,
         "messages": messages,
-        "output_config": {"effort": effort},
     }
+
+    if _supports(model, _EFFORT_MODELS):
+        params["output_config"] = {"effort": effort}
 
     if _supports(model, _ADAPTIVE_THINKING_MODELS):
         # display defaults to "omitted" on current models, which streams empty

@@ -86,11 +86,14 @@ def test_opus5_gets_adaptive_thinking_and_fallbacks() -> None:
     assert needs_beta is True
 
 
-def test_haiku_gets_no_thinking_param() -> None:
-    """Haiku 4.5 needs the deprecated budget_tokens shape; sending adaptive 400s."""
+def test_haiku_gets_no_thinking_or_effort_param() -> None:
+    """Haiku 4.5 needs the deprecated budget_tokens shape; sending adaptive 400s.
+    It also predates output_config.effort entirely — sending it 400s too
+    (caught live during the Phase 0.3 effort sweep)."""
     params, needs_beta = _params("claude-haiku-4-5")
     assert "thinking" not in params
     assert "fallbacks" not in params
+    assert "output_config" not in params
     assert needs_beta is False
 
 
